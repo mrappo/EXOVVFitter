@@ -35,10 +35,11 @@ parser.add_option('--jetalgo', action="store",type="string",dest="jetalgo",defau
 parser.add_option('--interpolate', action="store_true",dest="interpolate",default=False)
 parser.add_option('--luminosity', action="store", type="float", dest="luminosity_value", default="2300.")
 parser.add_option('--ntuple', action="store",type="string",dest="ntuple",default="WWTree_22sep_jecV7_lowmass")
+parser.add_option('--CDir', action="store",type="string",dest="cut_dir_input",default="")
 parser.add_option('--pseudodata', action="store_true",dest="pseudodata",default=False)
 # VBF options Values
-parser.add_option('--DEta', action="store",type="float",dest="DEta",default="0")
-parser.add_option('--DMjj', action="store",type="float",dest="DMjj",default="0")
+parser.add_option('--DEta', action="store",type="float",dest="DEta",default=0.0)
+parser.add_option('--DMjj', action="store",type="float",dest="DMjj",default=0.0)
 
 
 #--DEta %f --DMjj %f
@@ -54,6 +55,7 @@ from ROOT import draw_error_band, draw_error_band2, draw_error_band_extendPdf, d
 ###############################################
 #### MATTEO: global variables definition
 ###############################################
+Cut_dir=options.cut_dir_input;
 Ntuple_Path_lxplus="/afs/cern.ch/user/l/lbrianza/work/public/%s/"%options.ntuple
 Luminosity_float_value=options.luminosity_value
 Sample_str_value=options.sample
@@ -62,8 +64,8 @@ Mass_str=str("%.0f"%Mass_float_value)
 SampleMass_str=Sample_str_value+Mass_str
 Ntuple_dir="Ntuple_%s"%options.ntuple
 lumi_str_value=str("%.0f"%Luminosity_float_value);
-DEta_global=options.DEta;
-DMjj_global=options.DMjj;
+DEta_global=float(options.DEta);
+DMjj_global=float(options.DMjj);
    
 
 
@@ -115,11 +117,11 @@ if options.VBF_process:
           Lumi_dir=Data_dir_name+"/Lumi_%s_VBF"%lumi_str_value
           if not os.path.isdir(Lumi_dir):
                  os.system("mkdir "+Lumi_dir);
-                 
-          Cut_dir=Lumi_dir+"/DEta%1.1f_Mjj_%.0f"%(DEta_global,DMjj_global);               
+          '''       
+          Cut_dir=Lumi_dir+"/DEta%1.3f_Mjj_%.0f"%(DEta_global,DMjj_global);               
           if not os.path.isdir(Cut_dir):
                  os.system("mkdir "+Cut_dir);
-          
+          '''
           plots_dir_1=Cut_dir+"/plots_%s_%s_VBF" %(options.channel,options.category)
           if not os.path.isdir(plots_dir_1):
                  os.system("mkdir "+plots_dir_1);
@@ -267,11 +269,18 @@ class doFit_wj_and_wlvj:
         #prepare background data and signal samples            
         self.signal_sample=in_signal_sample;
         
-        if (options.ntuple=="WWTree_17feb_jecV7_lowmass" and options.sample=="BulkGraviton"):
-           sample_tmp=options.sample+"_newxsec"+Mass_str;
-                   
+        
+        if options.VBF_process:
+           sample_tmp="VBF"+self.signal_sample;
+        
+        
         else:
-           sample_tmp=self.signal_sample;
+           if (options.ntuple=="WWTree_17feb_jecV7_lowmass" and options.sample=="BulkGraviton"):
+              sample_tmp=options.sample+"_newxsec"+Mass_str;
+           else:
+              sample_tmp=self.signal_sample;
+           
+        
            
         self.file_data = (file_data_used);
         self.file_signal     = ("WWTree_%s.root"%(sample_tmp));#self.signal_sample));
@@ -3267,11 +3276,12 @@ text.SetTextFont(62)
                 
                 #VBF SELECTION MATTEO ADDED
                 if options.VBF_process:
-                  if treeIn.njets<2: self.isGoodEvent=0;
-                  if abs(treeIn.vbf_maxpt_j1_eta-treeIn.vbf_maxpt_j2_eta)<DEta_global: self.isGoodEvent=0;
-                  if treeIn.vbf_maxpt_jj_m<DMjj_global: self.isGoodEvent=0;
-                
-                
+                   if ((treeIn.njets) < 2.0): 
+                      self.isGoodEvent=0;
+                   if (abs((treeIn.vbf_maxpt_j1_eta)-(treeIn.vbf_maxpt_j2_eta)) < DEta_global): 
+                      self.isGoodEvent=0;
+                   if ((treeIn.vbf_maxpt_jj_m) < DMjj_global): 
+                      self.isGoodEvent=0;
                 
             else: #CHS
                 if self.IsGoodEvent(treeIn) and treeIn.issignal and treeIn.mass_lvj_type2> rrv_mass_lvj.getMin() and treeIn.mass_lvj_type2<rrv_mass_lvj.getMax() and tmp_jet_mass>rrv_mass_j.getMin() and tmp_jet_mass<rrv_mass_j.getMax() :
@@ -3297,9 +3307,12 @@ text.SetTextFont(62)
                 
                 #VBF SELECTION MATTEO ADDED
                 if options.VBF_process:
-                  if treeIn.njets<2: self.isGoodEvent=0;
-                  if abs(treeIn.vbf_maxpt_j1_eta-treeIn.vbf_maxpt_j2_eta)<DEta_global: self.isGoodEvent=0;
-                  if treeIn.vbf_maxpt_jj_m<DMjj_global: self.isGoodEvent=0;
+                   if ((treeIn.njets) < 2.0): 
+                      self.isGoodEvent=0;
+                   if (abs((treeIn.vbf_maxpt_j1_eta)-(treeIn.vbf_maxpt_j2_eta)) < DEta_global): 
+                      self.isGoodEvent=0;
+                   if ((treeIn.vbf_maxpt_jj_m) < DMjj_global): 
+                      self.isGoodEvent=0;
                 
                 
             '''
@@ -4363,6 +4376,12 @@ if __name__ == '__main__':
     f.write("\nreweight_for_V :\t\t%f" %reweight_for_V_value);
     f.write("\nDeltaEta :\t\t%f" %DEta_global);
     f.write("\nMjj :\t\t%f" %DMjj_global);
+    if options.VBF_process:
+       f.write("\nVBF PROCESS");
+    else:
+       f.write("\nNORMAL PROCESS");
+    
+    
     f.write("\n\n\nStarting time : \t\t%s"%start_time);
     f.write("\n\n\nEnding time : \t\t\t%s"%end_time);
     f.close();
