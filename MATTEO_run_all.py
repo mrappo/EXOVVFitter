@@ -187,7 +187,7 @@ if __name__ == '__main__':
                       outScript.write("\n"+'echo ${PATH}');
                       outScript.write("\n"+'ls');
 
-                      cmd_tmp = "python MATTEO_g1_exo_doFit_class_new.py -b -c %s --ntuple %s --mass %f --category %s --sample %s --jetalgo %s --luminosity %f --vbf True %s --DEta %f --DMjj %f --CDir %s > " %(options.channel,options.ntuple,m,options.category,sample,options.jetalgo,options.lumi,pd_option,DEta_local,Mjj_local,Cut_dir);
+                      cmd_tmp = "python MATTEO_g1_exo_doFit_class_new.py -b -c %s --ntuple %s --mass %f --category %s --sample %s --jetalgo %s --luminosity %f --vbf True --DEta %f --DMjj %f --CDir %s > "%(options.channel,options.ntuple,m,options.category,sample,options.jetalgo,options.lumi,DEta_local,Mjj_local,Cut_dir);
                       cmd= cmd_tmp+log_file;
                       outScript.write("\n"+cmd);
                       #outScript.write("\n"+'rm *.out');
