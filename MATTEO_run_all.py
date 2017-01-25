@@ -15,6 +15,9 @@ parser.add_option('--batchMode', action="store_true",dest="batchMode",default=Tr
 parser.add_option('--vbf', action="store_true",dest="VBF_process",default=True)
 parser.add_option('--pseudodata', action="store_true",dest="pseudodata",default=False)
 parser.add_option('--lumi', action="store",type="float",dest="lumi",default=2300.0)
+parser.add_option('--CrossCuts', action="store_true",dest="CrosCuts",default=False)
+#parser.add_option('--SignleCuts', action="store_true",dest="SingleCuts",default=False)
+#parser.add_option('--MultipleCuts', action="store_true",dest="MultipleCuts",default=False)
 (options, args) = parser.parse_args()
 
 currentDir = os.getcwd();
@@ -49,11 +52,11 @@ if __name__ == '__main__':
     if options.VBF_process:
        
        ## DeltaEta Cut
-       DEta_values=[0.0,1.0,1.5,2.0,2.5];
-    
+       DEta_values=[0.0,1.0,1.5,2.0,2.2,2.4,2.5,2.7,3.0,3.5,4.0,4.5,5.0];
+     
        # Mjj Cut
-       DMjj_values=[0.0,100.0,150.0,200.0,250.0,300.0];
-
+       DMjj_values=[0.0,100.0,150.0,200.0,250.0,300.0,350.0,400.0];
+       
        n_eta=0;
        n_mjj=0;
     
@@ -74,26 +77,78 @@ if __name__ == '__main__':
        n_mjj=int(n_mjj);
        n_eta=int(n_eta);
        
+       
+       
        # Store all cuts in a Vector: index 0 -> DEltaEta Cut
        #                             index 1 -> Mjj Cut
-       i=j=0;
-       VBF_cut_values=[0.0 for i in range(int((n_mjj*n_eta))) ];
+       if options.CrosCuts:
+          print "\nCROSS CUTS\n"
+          i=j=0;
+          range_value=int((n_mjj*n_eta));
+          print range_value
+          VBF_cut_values=[0.0 for i in range(range_value)];
+          
+          i=j=0;
+          if (n_eta<n_mjj):
+             for i in range(n_eta):
+                 for j in range(n_mjj):
+                     i=int(i);
+                     j=int(j);
+                     tmp=int(i*(n_eta+1)+j);
+                     #print VBF_cut_values[tmp]
+                     #print tmp
+                     VBF_cut_values[tmp]=[float("%1.3f"%DEta_values[i]),float("%.1f"%DMjj_values[j])];
+                     #print VBF_cut_values[tmp]
+          
+          elif (n_eta>n_mjj):
+             for i in range(n_mjj):
+                 for j in range(n_eta):
+                     i=int(i);
+                     j=int(j);
+                     tmp=int(i*(n_mjj+1)+j);
+                     #print VBF_cut_values[tmp]
+                     #print "tmp: %.0f\ti: %.0f\tj: %.0f"%(tmp,i,j) 
+                     VBF_cut_values[tmp]=[float("%1.3f"%DEta_values[j]),float("%.1f"%DMjj_values[i])];
+                     #print VBF_cut_values[tmp]
+          else:
+             for i in range(n_mjj):
+                 for j in range(n_eta):
+                     i=int(i);
+                     j=int(j);
+                     tmp=int(i*(n_mjj)+j);
+                     #print VBF_cut_values[tmp]
+                     #print "tmp: %.0f\ti: %.0f\tj: %.0f"%(tmp,i,j) 
+                     VBF_cut_values[tmp]=[float("%1.3f"%DEta_values[j]),float("%.1f"%DMjj_values[i])];
+           
+           
+           
+      
+              
+       else:
+          print "\nSINGLE CUTS\n"
+          i=j=0;
 
-       i=j=0;
-       for i in range(n_eta):
-           for j in range(n_mjj):
-               i=int(i);
-               j=int(j);
-               tmp=int(i*(n_eta+1)+j);
-               VBF_cut_values[tmp]=[float("%1.3f"%DEta_values[i]),float("%.1f"%DMjj_values[j])];
-               print VBF_cut_values[tmp]
-               print tmp
+          range_value=int(n_mjj+n_eta-1);
+          VBF_cut_values=[0.0 for i in range(range_value)];          
+
+          i=j=0;
+          for i in range(n_eta):
+              VBF_cut_values[i]=[float("%1.3f"%DEta_values[i]),0.0];
+          
+          for j in range(n_mjj-1):
+              VBF_cut_values[n_eta+j]=[0.0,float("%.1f"%DMjj_values[j+1])];
+       
+       
+       
+
+       
 
        # Check the CutsVector
        i=0;
        print "\n\nVector of Cut Values:\n"
-    
-       for i in range(int(n_mjj*n_eta)):
+       print "Total CutsNumber: %.0f"%range_value
+       print "\n"
+       for i in range(range_value):
            i=int(i);
            tmp=VBF_cut_values[i];
            DEta_tmp=tmp[0];
@@ -116,7 +171,7 @@ if __name__ == '__main__':
        VBF_CutListFile = open(VBF_CutListFileName, 'w');
        
        i=0;
-       for i in range(int(n_mjj*n_eta)):
+       for i in range(range_value):
            i=int(i);
            tmp=VBF_cut_values[i];
            DEta_local=float("%1.3f"%tmp[0]);
@@ -151,7 +206,7 @@ if __name__ == '__main__':
             #### VBF PROCESS
             if options.VBF_process:
                i=0;
-               for i in range(int(n_mjj*n_eta)):
+               for i in range(range_value):
                    i=int(i);
                    tmp=VBF_cut_values[i];
                    DEta_local=float("%1.3f"%tmp[0]);
@@ -169,7 +224,7 @@ if __name__ == '__main__':
                
                    log_file=log_dir+"/log_VBF_%s_M%.0f_%s_%s.log"%(sample,m,options.channel,options.category);
                    
-                   
+    
                    ## BatchMode
                    if (options.interpolate==False and options.batchMode==True):
               
@@ -187,8 +242,8 @@ if __name__ == '__main__':
                       outScript.write("\n"+'echo ${PATH}');
                       outScript.write("\n"+'ls');
 
-                      cmd_tmp = "python MATTEO_g1_exo_doFit_class_new.py -b -c %s --ntuple %s --mass %f --category %s --sample %s --jetalgo %s --luminosity %f --vbf True --DEta %f --DMjj %f --CDir %s > "%(options.channel,options.ntuple,m,options.category,sample,options.jetalgo,options.lumi,DEta_local,Mjj_local,Cut_dir);
-                      cmd= cmd_tmp+log_file;
+                      cmd_tmp = "python MATTEO_g1_exo_doFit_class_new.py -b -c %s --ntuple %s --mass %f --category %s --sample %s --jetalgo %s --luminosity %f --vbf True --DEta %f --DMjj %f --CDir %s "%(options.channel,options.ntuple,m,options.category,sample,options.jetalgo,options.lumi,DEta_local,Mjj_local,Cut_dir);
+                      cmd= cmd_tmp;#p+log_file;
                       outScript.write("\n"+cmd);
                       #outScript.write("\n"+'rm *.out');
                       outScript.close();
@@ -199,15 +254,15 @@ if __name__ == '__main__':
 
                    ## BatchMode and Interpolate
                    elif (options.interpolate==True and not options.batchMode==True):
-                        cmd_tmp = "python MATTEO_g1_exo_doFit_class_new.py -b -c %s --ntuple %s --mass %f --category %s --sample %s --jetalgo %s --luminosity %f --interpolate True --vbf True %s --DEta %f --DMjj %f --CDir %s > " %(options.channel,options.ntuple,m,options.category,sample,options.jetalgo,options.lumi,pd_option,DEta_local,Mjj_local,Cut_dir);
-                        cmd=cmd_tmp+log_file;
+                        cmd_tmp = "python MATTEO_g1_exo_doFit_class_new.py -b -c %s --ntuple %s --mass %f --category %s --sample %s --jetalgo %s --luminosity %f --interpolate True --vbf True %s --DEta %f --DMjj %f --CDir %s " %(options.channel,options.ntuple,m,options.category,sample,options.jetalgo,options.lumi,pd_option,DEta_local,Mjj_local,Cut_dir);
+                        cmd=cmd_tmp;#+log_file;
                         print cmd
                         os.system(cmd);
 
                    ## Normal executing way
                    else:   
-                        cmd_tmp = "python MATTEO_g1_exo_doFit_class_new.py -b -c %s --ntuple %s --mass %f --category %s --sample %s --jetalgo %s --luminosity %f --vbf True --DEta %f --DMjj %f --CDir %s > "%(options.channel,options.ntuple,m,options.category,sample,options.jetalgo,options.lumi,DEta_local,Mjj_local,Cut_dir);
-                        cmd=cmd_tmp+log_file;
+                        cmd_tmp = "python MATTEO_g1_exo_doFit_class_new.py -b -c %s --ntuple %s --mass %f --category %s --sample %s --jetalgo %s --luminosity %f --vbf True --DEta %f --DMjj %f --CDir %s "%(options.channel,options.ntuple,m,options.category,sample,options.jetalgo,options.lumi,DEta_local,Mjj_local,Cut_dir);
+                        cmd=cmd_tmp;#+log_file;
                         print cmd
                         os.system(cmd);
                 
@@ -301,7 +356,7 @@ if __name__ == '__main__':
                
                
                
-               
+    
   
 #python run-all.py --channel mu -s Wprime_WZ --jetalgo Mjsoftdrop --category HP
 #python run-all.py -c mu -s BulkG_WW --category HPW

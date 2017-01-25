@@ -4326,8 +4326,8 @@ if __name__ == '__main__':
         if options.category.find('HP2') != -1 or options.category.find('ALLP2') != -1:
            pre_limit_sb_correction("method1",channel,sample,options.jetalgo,lomass,himass,40,150,600,4000,"ExpN","ExpN",options.interpolate) 
         else:
-#           pre_limit_sb_correction("method1",channel,sample,options.jetalgo,lomass,himass,40,150,600,1500,"ExpN","ExpN",options.interpolate) 
-           pre_limit_sb_correction("method1",channel,sample,options.jetalgo,lomass,himass,40,150,600,4000,"ExpN","ExpTail",options.interpolate) 
+           pre_limit_sb_correction("method1",channel,sample,options.jetalgo,lomass,himass,40,150,600,1600,"ExpN","ExpN",options.interpolate) 
+           #pre_limit_sb_correction("method1",channel,sample,options.jetalgo,lomass,himass,40,150,600,4000,"ExpN","ExpTail",options.interpolate) #Original
 #           pre_limit_sb_correction("method1",channel,sample,options.jetalgo,lomass,himass,40,150,600,1500,"Exp","ExpTail",options.interpolate) 
     
     end_time=timenow(0);
@@ -4357,7 +4357,7 @@ if __name__ == '__main__':
 
     #dir_name="Ntuple_%s/Data_Settings_%s_%s_lumi_%s/"%(options.ntuple,channel,Sample_str_value,lumi_str_value)
     
-    filename=output_dir_name_2+"/Data_Settings_%s_%s_%1.1f_%.0f.txt"%(channel,SampleMass_str,DEta_global,DMjj_global);
+    filename=output_dir_name_2+"/Data_Settings_%s_%s_%1.3f_%.0f.txt"%(channel,SampleMass_str,DEta_global,DMjj_global);
     f = open(filename, 'w');
     f.write("Parametri utilizzati per la valutazione del Background\n\n");
     f.write("\nchannel:\t\t\t\t%s" %channel);
