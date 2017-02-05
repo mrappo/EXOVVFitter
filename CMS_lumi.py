@@ -5,7 +5,7 @@ import ROOT as rt
 #   Translated in Python by: Joshua Hardenbrook (Princeton)
 #
 
-cmsText     = "CMS";
+cmsText     = ""#"CMS"; MATTEO CHANGED
 cmsTextFont   = 61  
 
 writeExtraText = True

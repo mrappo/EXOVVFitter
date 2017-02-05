@@ -38,8 +38,12 @@ parser.add_option('--ntuple', action="store",type="string",dest="ntuple",default
 parser.add_option('--CDir', action="store",type="string",dest="cut_dir_input",default="")
 parser.add_option('--pseudodata', action="store_true",dest="pseudodata",default=False)
 # VBF options Values
+parser.add_option('--UnBlind', action="store_true",dest="UnBlind",default=False)
 parser.add_option('--DEta', action="store",type="float",dest="DEta",default=0.0)
 parser.add_option('--DMjj', action="store",type="float",dest="DMjj",default=0.0)
+parser.add_option('--TTBSF', action="store",type="float",dest="TTBSF",default=0.0)
+parser.add_option('--sigmaTTBSF', action="store",type="float",dest="sigmaTTBSF",default=0.0)
+
 
 
 #--DEta %f --DMjj %f
@@ -98,7 +102,8 @@ else:
    Data_dir_name=Ntuple_dir+"/trueData"
    if not os.path.isdir(Data_dir_name):
           os.system("mkdir "+Data_dir_name);
-   reweight_for_T_value=0.886664#0.850
+   reweight_for_T_value=options.TTBSF; #0.850
+   Sigma_reweight_for_T_value=options.sigmaTTBSF; #0.850
    reweight_for_V_value=1.021
    Sigma_Scale_Factor=1.066
    Mean_Shift=-1.080
@@ -317,12 +322,12 @@ class doFit_wj_and_wlvj:
         ### MATTEO CHANGED
         if self.channel=="mu" and self.wtagger_label.find("HP") != -1:
             self.rrv_wtagger_eff_reweight_forT=RooRealVar("rrv_wtagger_eff_reweight_forT","rrv_wtagger_eff_reweight_forT", reweight_for_T_value);#0.850);
-            self.rrv_wtagger_eff_reweight_forT.setError(0.042);
+            self.rrv_wtagger_eff_reweight_forT.setError(Sigma_reweight_for_T_value);#0.042);
             self.rrv_wtagger_eff_reweight_forV=RooRealVar("rrv_wtagger_eff_reweight_forV","rrv_wtagger_eff_reweight_forV", reweight_for_V_value);#1.021);
             self.rrv_wtagger_eff_reweight_forV.setError(0.151);
         if (self.channel=="el" or self.channel=="em") and self.wtagger_label.find("HP") != -1:
             self.rrv_wtagger_eff_reweight_forT=RooRealVar("rrv_wtagger_eff_reweight_forT","rrv_wtagger_eff_reweight_forT", reweight_for_T_value);#0.850);
-            self.rrv_wtagger_eff_reweight_forT.setError(0.042);
+            self.rrv_wtagger_eff_reweight_forT.setError(Sigma_reweight_for_T_value);#0.042);
             self.rrv_wtagger_eff_reweight_forV=RooRealVar("rrv_wtagger_eff_reweight_forV","rrv_wtagger_eff_reweight_forV", reweight_for_V_value);#11.021);
             self.rrv_wtagger_eff_reweight_forV.setError(0.151);
         if self.channel=="mu" and self.wtagger_label.find("LP") != -1:
@@ -713,7 +718,7 @@ objName ==objName_before ):
        
        #tdrstyle.setTDRStyle()
        CMS_lumi.lumi_13TeV = "%.1f fb^{-1}" %tmp_lumi_val
-       CMS_lumi.writeExtraText = 1
+       CMS_lumi.writeExtraText = 0;
        CMS_lumi.extraText = "Preliminary"
 
        iPos = 11
@@ -3271,8 +3276,10 @@ text.SetTextFont(62)
                 if (self.channel=="mu" and treeIn.l_pt<40) : self.isGoodEvent = 0;
                 if ((self.channel=="el" or self.channel=="em") and treeIn.pfMETpuppi<80) : self.isGoodEvent = 0;
                 if ((self.channel=="el" or self.channel=="em") and treeIn.l_pt<45) : self.isGoodEvent = 0;
-
-                #if (label=="_data_xww") and (treeIn.PuppiAK8_jet_mass_so > 65.) and (treeIn.PuppiAK8_jet_mass_so < 135.) : self.isGoodEvent = 0; #BLINDING
+                
+                
+                if not options.UnBlind:
+                       if (label=="_data_xww") and (treeIn.PuppiAK8_jet_mass_so > 65.) and (treeIn.PuppiAK8_jet_mass_so < 135.) : self.isGoodEvent = 0; #BLINDING
                 
                 #VBF SELECTION MATTEO ADDED
                 if options.VBF_process:
@@ -3302,8 +3309,9 @@ text.SetTextFont(62)
                 if (self.channel=="mu" and treeIn.l_pt<40) : self.isGoodEvent = 0;
                 if ((self.channel=="el" or self.channel=="em") and treeIn.pfMET<80) : self.isGoodEvent = 0;
                 if ((self.channel=="el" or self.channel=="em") and treeIn.l_pt<45) : self.isGoodEvent = 0;
-
-                #if (label=="_data_xww") and (treeIn.jet_mass_pr > 65.) and (treeIn.jet_mass_pr < 135.) : self.isGoodEvent = 0; #BLINDING
+                
+                if not options.UnBlind:
+                       if (label=="_data_xww") and (treeIn.jet_mass_pr > 65.) and (treeIn.jet_mass_pr < 135.) : self.isGoodEvent = 0; #BLINDING
                 
                 #VBF SELECTION MATTEO ADDED
                 if options.VBF_process:
@@ -3314,62 +3322,7 @@ text.SetTextFont(62)
                    if ((treeIn.vbf_maxpt_jj_m) < DMjj_global): 
                       self.isGoodEvent=0;
                 
-                
-            '''
-            #VBF SELECTION MATTEO ADDED
-            if self.IsGoodEvent==1:
-               if options.VBF_process:
-                  if treeIn.njets<2: self.isGoodEvent=0;
-                  if abs(treeIn.vbf_maxpt_j1_eta-treeIn.vbf_maxpt_j2_eta)<DEta_global: self.isGoodEvent=0;
-                  if treeIn.vbf_maxpt_jj_m<DMjj_global: self.isGoodEvent=0;
-                  #--DEta %f --DMjj %f
-                  
-                  
-                  if SampleMass_str.find('Higgs650') !=-1: 
-                     
-                      or abs(treeIn.vbf_maxpt_j1_eta-treeIn.vbf_maxpt_j2_eta)>9.3): self.isGoodEvent=0;
-                     if (treeIn.vbf_maxpt_jj_m<856 or treeIn.vbf_maxpt_jj_m>5774): self.isGoodEvent=0;
-               
-               
-                  if SampleMass_str.find('Higgs1000') !=-1: 
-                     if treeIn.njets<2: self.isGoodEvent=0;
-                     if (abs(treeIn.vbf_maxpt_j1_eta-treeIn.vbf_maxpt_j2_eta)<4.04 or abs(treeIn.vbf_maxpt_j1_eta-treeIn.vbf_maxpt_j2_eta)>10.4): self.isGoodEvent=0;
-                     if (treeIn.vbf_maxpt_jj_m<973 or treeIn.vbf_maxpt_jj_m>4531): self.isGoodEvent=0;
-               
-               
-                  if SampleMass_str.find('BulkGraviton600') !=-1: 
-                     if treeIn.njets<2: self.isGoodEvent=0;
-                  #if abs(treeIn.vbf_maxpt_j1_eta-treeIn.vbf_maxpt_j2_eta)<2.5: self.isGoodEvent=0;
-                     if (treeIn.vbf_maxpt_jj_m<575 or treeIn.vbf_maxpt_jj_m>3641): self.isGoodEvent=0;
-            '''
-                
-               
-            #else: self.isGoodEvent=1;
-            
-            '''
-            if ((options.type).find('vbf') != -1 and treeIn.njets<2): self.isGoodEvent=0;
-            if ((options.type).find('vbf') != -1 and abs(treeIn.vbf_maxpt_j1_eta-treeIn.vbf_maxpt_j2_eta)<2.5): self.isGoodEvent=0;
-            if ((options.type).find('vbf') != -1 and treeIn.vbf_maxpt_jj_m<250): self.isGoodEvent=0;
-
-            if ((options.type).find('ggH') != -1 and treeIn.njets>1): self.isGoodEvent=0;
-            ''' 
-#            if ((label =="_data" or label =="_data_xww") and treeIn.jet_mass_pr >105 and treeIn.jet_mass_pr < 135 ) : self.isGoodEvent = 0; 
-
-    
-            '''
-            if options.pseudodata and (TString(label).Contains("_STop") or TString(label).Contains("_TTbar") or TString(label).Contains("_VV")):
-               #tmp_scale_to_lumi_global=TMath.Abs(treeIn.genWeight*treeIn.wSampleWeight*Luminosity_float_value);
-               tmp_event_weight_global = treeIn.trig_eff_Weight*treeIn.id_eff_Weight*treeIn.eff_and_pu_Weight*treeIn.genWeight*treeIn.wSampleWeight*tmp_lumi;
-               tmp_event_weight4fit_global = treeIn.trig_eff_Weight*treeIn.id_eff_Weight*treeIn.eff_and_pu_Weight*treeIn.genWeight;
-               tmp_event_weight4fit_global = tmp_event_weight4fit_global*treeIn.wSampleWeight*tmp_lumi/tmp_scale_to_lumi;
-
-
-
-            else:
-               #tmp_scale_to_lumi_global=Luminosity_float_value;
-               tmp_event_weight_global = 1.
-               tmp_event_weight4fit_global = 1.
-            '''
+           
                
             
             
@@ -4326,7 +4279,7 @@ if __name__ == '__main__':
         if options.category.find('HP2') != -1 or options.category.find('ALLP2') != -1:
            pre_limit_sb_correction("method1",channel,sample,options.jetalgo,lomass,himass,40,150,600,4000,"ExpN","ExpN",options.interpolate) 
         else:
-           pre_limit_sb_correction("method1",channel,sample,options.jetalgo,lomass,himass,40,150,600,1600,"ExpN","ExpN",options.interpolate) 
+           pre_limit_sb_correction("method1",channel,sample,options.jetalgo,lomass,himass,40,150,600,2000,"ExpN","ExpN",options.interpolate) 
            #pre_limit_sb_correction("method1",channel,sample,options.jetalgo,lomass,himass,40,150,600,4000,"ExpN","ExpTail",options.interpolate) #Original
 #           pre_limit_sb_correction("method1",channel,sample,options.jetalgo,lomass,himass,40,150,600,1500,"Exp","ExpTail",options.interpolate) 
     
@@ -4335,29 +4288,10 @@ if __name__ == '__main__':
     lumi_str_value=str("%.0f"%Luminosity_float_value);
     m=str(mass);
     
-    
-    '''
-    if options.VBF_process:
-        dir_name="Ntuple_%s/Lumi_%s_VBF"%(options.ntuple,lumi_str_value)
-        if not os.path.isdir(dir_name):
-               os.system("mkdir "+dir_name);
+   
 
-    else:
-        dir_name="Ntuple_%s/Lumi_%s"%(options.ntuple,lumi_str_value)
-        if not os.path.isdir(dir_name):
-               os.system("mkdir "+dir_name);
-    '''
-    output_dir_name_1=Lumi_dir+"/Data_Settings_%s_%s"%(channel,SampleMass_str)
-    if not os.path.isdir(output_dir_name_1):
-           os.system("mkdir "+output_dir_name_1);
-           
-    output_dir_name_2=output_dir_name_1+"/DEta%1.1f_Mjj%.0f"%(DEta_global,DMjj_global);
-    if not os.path.isdir(output_dir_name_2):
-           os.system("mkdir "+output_dir_name_2);
-
-    #dir_name="Ntuple_%s/Data_Settings_%s_%s_lumi_%s/"%(options.ntuple,channel,Sample_str_value,lumi_str_value)
     
-    filename=output_dir_name_2+"/Data_Settings_%s_%s_%1.3f_%.0f.txt"%(channel,SampleMass_str,DEta_global,DMjj_global);
+    filename=Cut_dir+"/Data_Settings_%s_%s_%1.3f_%.0f.txt"%(channel,SampleMass_str,DEta_global,DMjj_global);
     f = open(filename, 'w');
     f.write("Parametri utilizzati per la valutazione del Background\n\n");
     f.write("\nchannel:\t\t\t\t%s" %channel);
@@ -4373,6 +4307,7 @@ if __name__ == '__main__':
     f.write("\nmean_shift :\t\t\t%f" %Mean_Shift);
     f.write("\nsigma_scale_factor :\t%f" %Sigma_Scale_Factor);
     f.write("\nreweight_for_T :\t\t%f" %reweight_for_T_value);
+    f.write("\nSigma reweight_for_T :\t\t%f" %Sigma_reweight_for_T_value);
     f.write("\nreweight_for_V :\t\t%f" %reweight_for_V_value);
     f.write("\nDeltaEta :\t\t%f" %DEta_global);
     f.write("\nMjj :\t\t%f" %DMjj_global);
