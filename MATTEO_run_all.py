@@ -12,7 +12,7 @@ parser.add_option('--category', action="store",type="string",dest="category",def
 parser.add_option('--type', action="store",type="string",dest="type",default="")
 parser.add_option('--jetalgo', action="store",type="string",dest="jetalgo",default="jet_mass_pr")
 parser.add_option('--interpolate', action="store_true",dest="interpolate",default=False)
-parser.add_option('--batchMode', action="store_true",dest="batchMode",default=False)
+parser.add_option('--batchMode', action="store_true",dest="batchMode",default=True)
 parser.add_option('--vbf', action="store_true",dest="VBF_process",default=True)
 parser.add_option('--pseudodata', action="store_true",dest="pseudodata",default=False)
 parser.add_option('--lumi', action="store",type="float",dest="lumi",default=2300.0)
@@ -26,12 +26,18 @@ devnull = open(os.devnull, 'w');
 samples=["BulkGraviton","Higgs"];
 lumi_str=str("%.0f"%options.lumi);
 # DEta cut
-DEta_values=[0.0,1.0,1.5,2.0,2.5];
+#DEta_values=[0.0,1.0,1.5,2.0,2.5];
 
 # Mjj Cut
-DMjj_values=[0.0,100.0,150.0,200.0,250.0,300.0,350.0,400.0,450.0,500.0];
+#DMjj_values=[0.0,100.0,150.0,200.0,250.0,300.0,350.0,400.0,450.0,500.0];
 
-
+## DeltaEta Cut
+#DEta_values=[0.0,0.25,0.5,0.75,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0];
+DEta_values=[0.5,1.5,2.0];
+   
+# Mjj Cut
+#DMjj_values=[0.0,25.0,50.0,75.0,100.0,125.0,150.0,175.0,200.0,225.0,250.0,275.0,300.0,325.0];
+DMjj_values=[50.0,150.0,250.0];
 
 
 
@@ -181,8 +187,8 @@ def print_lined_string_File(in_string_vector,out_file):
         if tmp_lenght>lenght:
            lenght=tmp_lenght;
     total_lenght=int(lenght*1.40)
-    if total_lenght > 140:
-       total_lenght=140;
+    if total_lenght > 120:
+       total_lenght=120;
 
 
         
@@ -263,9 +269,9 @@ def print_boxed_string_File(in_string_vector,out_file_name):
         tmp_lenght=len(i);
         if tmp_lenght>lenght:
            lenght=tmp_lenght;
-    total_lenght=int(lenght*1.30)
-    if total_lenght > 140:
-       total_lenght=140;
+    total_lenght=int(lenght*1.40)
+    if total_lenght > 120:
+       total_lenght=120;
     line_ext="";
     line_in="";
     zero_space="";
@@ -672,7 +678,7 @@ if __name__ == '__main__':
                       pd13.wait();
                       
                      
-                      pd14 = subprocess.Popen(['bsub','-q','cmscaf1nd','-cwd',currentDir,cmd_to_execute]);
+                      pd14 = subprocess.Popen(['bsub','-q','1nh','-cwd',currentDir,cmd_to_execute]);
                       pd14.wait();
                       
                       #os.system("chmod 777 "+currentDir+"/"+fn+".sh");
