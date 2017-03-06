@@ -12,7 +12,7 @@ parser.add_option('--category', action="store",type="string",dest="category",def
 parser.add_option('--type', action="store",type="string",dest="type",default="")
 parser.add_option('--jetalgo', action="store",type="string",dest="jetalgo",default="jet_mass_pr")
 parser.add_option('--interpolate', action="store_true",dest="interpolate",default=False)
-parser.add_option('--batchMode', action="store_true",dest="batchMode",default=True)
+parser.add_option('--batchMode', action="store_true",dest="batchMode",default=False)
 parser.add_option('--vbf', action="store_true",dest="VBF_process",default=True)
 parser.add_option('--pseudodata', action="store_true",dest="pseudodata",default=False)
 parser.add_option('--lumi', action="store",type="float",dest="lumi",default=2300.0)
@@ -33,12 +33,12 @@ lumi_str=str("%.0f"%options.lumi);
 
 ## DeltaEta Cut
 #DEta_values=[0.0,0.25,0.5,0.75,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0];
-DEta_values=[0.5,1.5,2.0];
-   
+#DEta_values=[0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0];
+DEta_values=[2.0];
 # Mjj Cut
 #DMjj_values=[0.0,25.0,50.0,75.0,100.0,125.0,150.0,175.0,200.0,225.0,250.0,275.0,300.0,325.0];
-DMjj_values=[50.0,150.0,250.0];
-
+#DMjj_values=[0.0,20.0,40.0,60.0,80.0,100.0,120.0,140.0,160.0,180.0,200.0,220.0,240.0,260.0,280.0,300.0,320.0,340.0];
+DMjj_values=[200.0];
 
 
    

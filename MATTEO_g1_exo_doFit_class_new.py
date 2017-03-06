@@ -3084,7 +3084,7 @@ text.SetTextFont(62)
 
        else:
            if self.wtagger_label.find('HP') != -1:  
-               if tree.jet_tau2tau1 < 0.45 : keepEvent = True
+               if tree.jet_tau2tau1 < 0.6 : keepEvent = True
        #all HP nbtag categories == LP only
            if self.wtagger_label.find('LP') != -1:  
                if tree.jet_tau2tau1 > 0.45 and tree.jet_tau2tau1 < 0.75: keepEvent = True
@@ -3291,24 +3291,73 @@ text.SetTextFont(62)
                       self.isGoodEvent=0;
                 
             else: #CHS
-                if self.IsGoodEvent(treeIn) and treeIn.issignal and treeIn.mass_lvj_type2> rrv_mass_lvj.getMin() and treeIn.mass_lvj_type2<rrv_mass_lvj.getMax() and tmp_jet_mass>rrv_mass_j.getMin() and tmp_jet_mass<rrv_mass_j.getMax() :
-                    self.isGoodEvent = 1;   
-                if (treeIn.deltaR_lak8jet <1.57) : self.isGoodEvent = 0;
-                if (abs(treeIn.deltaphi_METak8jet)<2.0) : self.isGoodEvent = 0;
-                if (abs(treeIn.deltaphi_Vak8jet)<2.) : self.isGoodEvent = 0;
+
+                if treeIn.issignal and treeIn.mass_lvj_type2> rrv_mass_lvj.getMin() and treeIn.mass_lvj_type2<rrv_mass_lvj.getMax() and tmp_jet_mass>rrv_mass_j.getMin() and tmp_jet_mass<rrv_mass_j.getMax() :
+                    self.isGoodEvent = 1;
+                   
+                if (treeIn.deltaR_lak8jet <1.57): 
+                   self.isGoodEvent = 0;
+                 
+                if treeIn.jet_tau2tau1 >= 0.6: 
+                   self.isGoodEvent = 0;
+
+                if treeIn.vbf_maxpt_j1_bDiscriminatorCSV>=0.89:
+                   self.isGoodEvent = 0;
+                   
+                if treeIn.vbf_maxpt_j2_bDiscriminatorCSV>=0.89:
+                   self.isGoodEvent = 0;
+                
+                if (abs(treeIn.deltaphi_METak8jet)<2.0): 
+                   self.isGoodEvent = 0;
+                
+                
+                if (abs(treeIn.deltaphi_Vak8jet)<2.): 
+                   self.isGoodEvent = 0;
+                 
+                
                 if ((options.jetalgo).find('pr') != -1): #CHS pruned
-                    if (treeIn.jet_mass_pr > 150.) : self.isGoodEvent = 0;
-                    if (treeIn.jet_mass_pr < 40.) : self.isGoodEvent = 0;
+                    if (treeIn.jet_mass_pr > 150.): 
+                       self.isGoodEvent = 0;
+                  
+                           
+                    if (treeIn.jet_mass_pr < 40.): 
+                       self.isGoodEvent = 0;
+                       
+                
                 else: #CHS softdrop
                     if (treeIn.jet_mass_so > 150.) : self.isGoodEvent = 0;
                     if (treeIn.jet_mass_so < 40.) : self.isGoodEvent = 0;
-                if (treeIn.nBTagJet_medium>0) : self.isGoodEvent = 0;
-                if (treeIn.v_pt<200.) : self.isGoodEvent = 0;
-                if (treeIn.ungroomed_jet_pt<200.) : self.isGoodEvent = 0;
-                if (self.channel=="mu" and treeIn.pfMET<40) : self.isGoodEvent = 0;
-                if (self.channel=="mu" and treeIn.l_pt<40) : self.isGoodEvent = 0;
-                if ((self.channel=="el" or self.channel=="em") and treeIn.pfMET<80) : self.isGoodEvent = 0;
-                if ((self.channel=="el" or self.channel=="em") and treeIn.l_pt<45) : self.isGoodEvent = 0;
+                
+                
+                   
+                
+                if (treeIn.nBTagJet_medium>0): 
+                   self.isGoodEvent = 0;
+                  
+                
+                if (treeIn.v_pt<200.): 
+                   self.isGoodEvent = 0;
+                  
+                
+                if (treeIn.ungroomed_jet_pt<200.): 
+                    self.isGoodEvent = 0;
+                   
+                
+                if (self.channel=="mu" and treeIn.pfMET<40): 
+                   self.isGoodEvent = 0;
+                 
+                
+                if (self.channel=="mu" and treeIn.l_pt<40): 
+                   self.isGoodEvent = 0;
+                 
+                   
+                if ((self.channel=="el" or self.channel=="em") and treeIn.pfMET<80): 
+                   self.isGoodEvent = 0;
+                
+                   
+                if ((self.channel=="el" or self.channel=="em") and treeIn.l_pt<45): 
+                   self.isGoodEvent = 0;
+            
                 
                 if not options.UnBlind:
                        if (label=="_data_xww") and (treeIn.jet_mass_pr > 65.) and (treeIn.jet_mass_pr < 135.) : self.isGoodEvent = 0; #BLINDING
@@ -3342,7 +3391,7 @@ text.SetTextFont(62)
 #                tmp_event_weight4fit = tmp_event_weight4fit*treeIn.wSampleWeight*tmp_lumi/tmp_scale_to_lumi;
                         
                 if label =="_data" or label =="_data_xww" :
-#                     print "OK"; 
+                  
 #                    tmp_event_weight=1.;
 #                    tmp_event_weight4fit=1.;                    
                     tmp_event_weight     = tmp_event_weight_global; #treeIn.trig_eff_Weight*treeIn.id_eff_Weight*treeIn.eff_and_pu_Weight*treeIn.genWeight*treeIn.wSampleWeight*tmp_lumi;
